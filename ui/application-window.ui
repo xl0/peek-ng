@@ -137,13 +137,14 @@ Author: Philipp Wolfer <ph.wolfer@gmail.com>
         <property name="show_close_button">True</property>
         <property name="decoration_layout">:minimize,close</property>
         <child>
-          <object class="GtkButtonBox" id="action_button_box">
+          <object class="GtkBox" id="action_button_box">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="hexpand">False</property>
             <property name="vexpand">False</property>
-            <property name="baseline_position">bottom</property>
-            <property name="layout_style">expand</property>
+            <style>
+              <class name="linked"/>
+            </style>
             <child>
               <object class="GtkButton" id="stop_button">
                 <property name="label" translatable="yes">_Stop</property>
@@ -167,7 +168,6 @@ Author: Philipp Wolfer <ph.wolfer@gmail.com>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">1</property>
-                <property name="non_homogeneous">True</property>
               </packing>
             </child>
             <child>
@@ -193,7 +193,6 @@ Author: Philipp Wolfer <ph.wolfer@gmail.com>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">2</property>
-                <property name="non_homogeneous">True</property>
               </packing>
             </child>
             <child>
@@ -211,7 +210,6 @@ Author: Philipp Wolfer <ph.wolfer@gmail.com>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">3</property>
-                <property name="non_homogeneous">True</property>
               </packing>
             </child>
           </object>
