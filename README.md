@@ -290,11 +290,14 @@ services as GIFs.
 
 ### What is the cause for "Could not start GNOME Shell recorder" errors?
 
-On GNOME 42 and later running on X11, the GNOME Shell recorder waits for a
-PipeWire screencast stream that often never arrives, so recording fails with
-"Timeout was reached" or this error after a long freeze. Peek therefore only
-uses the GNOME Shell recorder in Wayland sessions and records with FFmpeg on
-X11. If you start Peek with `-b gnome-shell` on X11, drop that option.
+Since GNOME 42 the GNOME Shell recorder captures through PipeWire. If PipeWire
+is not running the recorder fails with this error right away; if PipeWire runs
+without a session manager (`pipewire-media-session` or `wireplumber`) the
+start call never returns and Peek reports "Timeout was reached" after a 25 s
+freeze. Peek therefore only uses the GNOME Shell recorder in Wayland sessions
+and records with FFmpeg on X11. If you start Peek with `-b gnome-shell` on
+X11, drop that option; in a Wayland session make sure PipeWire and its session
+manager are running.
 
 Otherwise this usually indicates an error while starting the built-in GNOME shell
 recorder. Unfortunately Peek does not receive any error details, to find out
