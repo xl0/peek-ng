@@ -17,6 +17,10 @@ int main (string[] args) {
   // https://github.com/phw/peek#why-no-native-wayland-support
   Environment.set_variable ("GDK_BACKEND", "x11", false);
 
+  // Writing the stop command to a recorder that already exited must
+  // surface as an error, not kill Peek.
+  Posix.signal (Posix.SIGPIPE, Posix.SIG_IGN);
+
   // Setup gettext
   Intl.setlocale (LocaleCategory.ALL, "");
   Intl.bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
