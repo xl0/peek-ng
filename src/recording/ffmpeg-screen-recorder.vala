@@ -83,8 +83,9 @@ namespace Peek.Recording {
           input.write (command);
           input.flush ();
         } catch (Error e) {
+          // Kill the child; its exit callback reports the failure.
           stderr.printf ("Error: %s\n", e.message);
-          recording_aborted (new RecordingError.RECORDING_ABORTED (e.message));
+          subprocess.force_exit ();
         }
       }
     }
