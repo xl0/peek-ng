@@ -96,20 +96,15 @@ namespace Peek {
       return -1;
     }
 
-    public static string get_command_failed_message (string[] argv, Subprocess? subprocess = null) {
+    public static string get_command_failed_message (
+      string[] argv, Subprocess? subprocess = null, string? output = null) {
       int status = -1;
       int term_sig = 0;
-      string? output = null;
 
       if (subprocess != null) {
         status = subprocess.get_status ();
         if (subprocess.get_if_signaled ()) {
           term_sig = subprocess.get_term_sig ();
-        }
-
-        var stdout_pipe = subprocess.get_stdout_pipe ();
-        if (stdout_pipe != null) {
-          output = read_instream_as_utf8 (stdout_pipe);
         }
       }
 
@@ -123,21 +118,34 @@ namespace Peek {
       return message;
     }
 
-    private static string? read_instream_as_utf8 (InputStream stream) {
+    /**
+    * Drain merged stdout/stderr while the command runs, leaving stdin open
+    * for recorder stop commands. Keep only the last 64 KiB for error reports.
+    */
+    public static async string wait_with_output_async (Subprocess subprocess) throws Error {
       var output = new StringBuilder ();
-      var dis = new DataInputStream (stream);
-      string line;
-
+      var stream = subprocess.get_stdout_pipe ();
       try {
-        while ((line = dis.read_line_utf8 (null)) != null) {
-          output.append (line);
+        while (true) {
+          // Read bytes, not lines: FFmpeg progress uses carriage returns.
+          var bytes = yield stream.read_bytes_async (8192);
+          if (bytes.get_size () == 0) {
+            break;
+          }
+          output.append_len ((string) bytes.get_data (), (ssize_t) bytes.get_size ());
+          if (output.len > 65536) {
+            output.erase (0, (ssize_t) output.len - 65536);
+          }
         }
-      } catch (IOError e) {
-        stderr.printf ("Error: %s\n", e.message);
-        return null;
+      } catch (Error e) {
+        // Without a reader the child could block forever writing its output.
+        subprocess.force_exit ();
+        yield subprocess.wait_async ();
+        throw e;
       }
 
-      return output.str;
+      yield subprocess.wait_async ();
+      return output.str.make_valid ();
     }
 
     private const string NUMBER_FORMAT = "%02" + int64.FORMAT_MODIFIER + "d";

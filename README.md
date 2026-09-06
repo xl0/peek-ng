@@ -71,7 +71,7 @@ Support for more Wayland desktops might be added in the future (see FAQs below).
 ### Runtime
 
 - GTK+ >= 3.20
-- GLib >= 2.38
+- GLib >= 2.52
 - [libkeybinder3](https://github.com/kupferlauncher/keybinder)
 - FFmpeg >= 3
 - GStreamer 'Good' plugins (for recording on GNOME Shell)

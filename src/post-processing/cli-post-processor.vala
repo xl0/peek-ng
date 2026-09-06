@@ -25,19 +25,21 @@ namespace Peek.PostProcessing {
     }
 
     protected async int spawn_command_async (string[] argv) throws RecordingError {
+      string output;
       try {
         subprocess = new Subprocess.newv (argv, SubprocessFlags.STDOUT_PIPE | SubprocessFlags.STDERR_MERGE);
-        yield subprocess.wait_async ();
+        output = yield Utils.wait_with_output_async (subprocess);
       } catch (Error e) {
         stderr.printf ("Error: %s\n", e.message);
-        string message = Utils.get_command_failed_message (argv, subprocess);
+        subprocess = null;
+        string message = Utils.get_command_failed_message (argv) + "\n" + e.message;
         throw new RecordingError.POSTPROCESSING_ABORTED (message);
       }
 
 
       int status = subprocess.get_status ();
       if (!Utils.is_exit_status_success (status)) {
-        string message = Utils.get_command_failed_message (argv, subprocess);
+        string message = Utils.get_command_failed_message (argv, subprocess, output);
         subprocess = null;
         throw new RecordingError.POSTPROCESSING_ABORTED (message);
       }

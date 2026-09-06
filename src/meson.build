@@ -55,7 +55,7 @@ keybinder = dependency('keybinder-3.0', required: get_option('enable-keybinder')
 peek_deps = [
   dependency('cairo'),
   dependency('gio-2.0', version: '>= 2.42'),
-  dependency('glib-2.0', version: '>= 2.38'),
+  dependency('glib-2.0', version: '>= 2.52'),
   dependency('gmodule-2.0'),
   gtk,
 ]
