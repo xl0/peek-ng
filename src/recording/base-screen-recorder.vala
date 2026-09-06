@@ -54,7 +54,7 @@ namespace Peek.Recording {
     public void stop () {
       debug ("Recording stopped");
 
-      if (elapsed_seconds > 0) {
+      if (is_recording) {
         _is_cancelling = false;
         is_recording = false;
         stop_recording ();
