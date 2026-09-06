@@ -14,14 +14,13 @@ namespace Peek.PostProcessing {
   */
   public class ExtractFramesPostProcessor : CliPostProcessor {
     private string executable = null;
-    private static Posix.Glob glob = Posix.Glob ();
 
     public override async Array<File>? process_async (Array<File> files) throws RecordingError {
       var input_file = files.index (0);
       string[] args = {
         find_executable (), "-y",
         "-i", input_file.get_path (),
-        get_png_filename_pattern (input_file, "%04d")
+        get_png_filename_pattern (input_file, "%06d")
       };
 
       try {
@@ -32,6 +31,10 @@ namespace Peek.PostProcessing {
       }
 
       var output = get_png_output_files (input_file);
+      if (output.length == 0) {
+        throw new RecordingError.POSTPROCESSING_ABORTED (
+          "No frames were extracted from the recording.");
+      }
       return output;
     }
 
@@ -39,13 +42,27 @@ namespace Peek.PostProcessing {
       return input_file.get_path () + "." + replacement + ".png";
     }
 
+    // Frames are "<input>.<number>.png" next to the input; sorted by name,
+    // which is frame order thanks to the zero-padded number.
     public static Array<File> get_png_output_files (File input_file) {
-      var png_file_pattern = get_png_filename_pattern (input_file, "*");
-      glob.glob (png_file_pattern);
+      var names = new GenericArray<string> ();
+      var prefix = input_file.get_basename () + ".";
+      try {
+        var dir = Dir.open (input_file.get_parent ().get_path ());
+        string? name;
+        while ((name = dir.read_name ()) != null) {
+          if (name.has_prefix (prefix) && name.has_suffix (".png")) {
+            names.add (name);
+          }
+        }
+      } catch (FileError e) {
+        stderr.printf ("Error listing frames: %s\n", e.message);
+      }
+
+      names.sort (strcmp);
       var output = new Array<File> ();
-      foreach (string png_file_path in glob.pathv) {
-        var file = File.new_for_path (png_file_path);
-        output.append_val (file);
+      foreach (string name in names.data) {
+        output.append_val (input_file.get_parent ().get_child (name));
       }
 
       return output;
