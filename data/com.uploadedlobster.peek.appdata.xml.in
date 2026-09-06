@@ -64,10 +64,10 @@
     <kudo>Notifications</kudo>
   </kudos>
 
-  <url type="homepage">http://peek.uploadedlobster.com</url>
+  <url type="homepage">https://github.com/xl0/peek-ng</url>
   <!-- <url type="help">http://peek.uploadedlobster.com</url> -->
-  <url type="faq">https://github.com/phw/peek#frequently-asked-questions</url>
-  <url type="bugtracker">https://github.com/phw/peek/issues</url>
+  <url type="faq">https://github.com/xl0/peek-ng#frequently-asked-questions</url>
+  <url type="bugtracker">https://github.com/xl0/peek-ng/issues</url>
   <!-- <url type="translate">https://hosted.weblate.org/projects/peek/translations/</url> -->
 
   <translation type="gettext">peek</translation>
@@ -82,6 +82,7 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="1.6.0" date="2026-09-06" />
     <release version="1.5.1" date="2020-02-19" />
     <release version="1.5.0" date="2020-02-18" />
     <release version="1.4.0" date="2019-09-24" />
