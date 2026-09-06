@@ -179,7 +179,10 @@ namespace Peek {
         theme_name = get_theme_name_from_settings_file ();
       }
 
-      if (theme_name == "") {
+      // GLib aborts on a missing schema, and non-GNOME systems may not
+      // ship gsettings-desktop-schemas.
+      if (theme_name == "" && SettingsSchemaSource.get_default ().lookup (
+        "org.gnome.desktop.interface", true) != null) {
         var settings = new GLib.Settings ("org.gnome.desktop.interface");
         theme_name = settings.get_string ("gtk-theme");
       }
