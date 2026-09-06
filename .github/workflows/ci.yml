@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            meson ninja-build valac gettext libxml2-utils \
+            libgtk-3-dev libkeybinder-3.0-dev ffmpeg
+      - name: Build
+        run: |
+          meson setup builddir
+          ninja -C builddir
+      - name: Test
+        run: meson test -C builddir --print-errorlogs
