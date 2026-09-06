@@ -127,10 +127,6 @@ namespace Peek.Recording {
     }
 
     private static bool is_gnome_40_or_higher () throws RecordingError {
-      if (!DesktopIntegration.is_gnome ()) {
-        return false;
-      }
-
       try {
         Gnome.Shell gnomeShell = Bus.get_proxy_sync (
           BusType.SESSION,
