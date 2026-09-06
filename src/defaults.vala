@@ -20,6 +20,7 @@ namespace Peek {
   public enum OutputFormat {
     APNG,
     GIF,
+    MP4,
     WEBM;
 
     public string to_string() {
@@ -30,6 +31,8 @@ namespace Peek {
           return "gif";
         case WEBM:
           return "webm";
+        case MP4:
+          return "mp4";
         default:
           assert_not_reached ();
       }
