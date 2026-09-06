@@ -917,8 +917,15 @@ namespace Peek.Ui {
       if (w == 0 || h == 0)
         return;
 
-      if (x >= 0 && y >= 0) {
-        move (x, y);
+      // Only restore a position that is still on a connected monitor.
+      var display = Gdk.Display.get_default ();
+      for (int i = 0; i < display.get_n_monitors (); i++) {
+        var area = display.get_monitor (i).get_workarea ();
+        if (x >= area.x && x < area.x + area.width
+          && y >= area.y && y < area.y + area.height) {
+          move (x, y);
+          break;
+        }
       }
 
       resize (w, h);

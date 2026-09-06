@@ -75,7 +75,7 @@ XWayland windows there. The backend can be forced with `peek -b ffmpeg` or
 ## Requirements
 ### Runtime
 
-- GTK+ >= 3.20
+- GTK+ >= 3.22
 - GLib >= 2.52
 - [libkeybinder3](https://github.com/kupferlauncher/keybinder)
 - FFmpeg >= 3
