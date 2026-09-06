@@ -1,4 +1,18 @@
 # Version 1.6.0 - unreleased
+- peek-ng: Maintained fork of the deprecated phw/peek
+- fix: Rendering no longer hangs forever on long recordings (#339)
+- fix: Restore MP4 recording removed upstream
+- fix: Use FFmpeg by default on X11 sessions; GNOME Shell recorder only in
+  Wayland sessions (fixes "Timeout was reached" on GNOME 42+, #1049 and others)
+- fix: GIF recordings no longer freeze and skip after a few seconds (#331)
+- fix: gifski output keeps the recorded size instead of 800px (#670, #714)
+- fix: Countdown digit no longer captured in the first frames (#208)
+- fix: Window can be resized much narrower (#580) and no longer restores
+  off-screen (#964)
+- fix: Failed saves re-open the save dialog instead of losing the recording (#229)
+- fix: Post-processing failures, sub-second stops, stale temp files, hotkey
+  grab failures, missing GNOME schema crash, SIGPIPE on stop
+- build: Require GTK >= 3.22 and GLib >= 2.52
 - feat: Add support for GNOME 40+ (#910)
 - feat: Add sound capture settings
 - feat: Removed issue submission from error dialog
