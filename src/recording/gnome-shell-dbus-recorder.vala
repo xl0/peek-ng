@@ -144,10 +144,9 @@ namespace Peek.Recording {
           // some cleanup / finalization to do. Without this the post-processing
           // sometimes fails.
           wait_timeout = Timeout.add_full (GLib.Priority.LOW, 400, () => {
-            Source.remove (wait_timeout);
             wait_timeout = 0;
             finalize_recording ();
-            return true;
+            return Source.REMOVE;
           });
         }
       } catch (DBusError e) {
