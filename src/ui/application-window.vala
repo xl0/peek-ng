@@ -801,15 +801,16 @@ namespace Peek.Ui {
               stderr.printf ("%s\n", message);
               throw new IOError.FAILED (message);
             }
+            leave_recording_state ();
           } catch (Error e) {
+            // Keep the rendered file and let the user pick another location.
             stderr.printf ("File save error: %s\n", e.message);
             ErrorDialog.present_single_instance (
               this,
               _ ("The file could not be saved to the selected location."),
               e);
-          }
-          finally {
-            leave_recording_state ();
+            this.out_file = null;
+            show_file_chooser ();
           }
         });
     }
