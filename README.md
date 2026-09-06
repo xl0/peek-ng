@@ -86,8 +86,8 @@ Every release on the [releases page](https://github.com/xl0/peek-ng/releases)
 ships packages built by CI:
 
 - `.deb` for Ubuntu 22.04 and 24.04 and for Debian 12 and 13
-- `.rpm` for Fedora (needs `ffmpeg` from [RPM Fusion](https://rpmfusion.org/Configuration),
-  or `ffmpeg-free` for GIF and WebM only)
+- `.rpm` for Fedora (needs `ffmpeg` from [RPM Fusion](https://rpmfusion.org/Configuration);
+  Fedora's own `ffmpeg-free` lacks the x264 encoders Peek uses)
 
 Download the file for your distribution and install it with
 `sudo apt install ./peek_*.deb` or `sudo dnf install ./peek-*.rpm`.
