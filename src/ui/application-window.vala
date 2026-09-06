@@ -211,6 +211,15 @@ namespace Peek.Ui {
 
       stop_button_label = stop_button.label;
 
+      // Let the button labels shrink so the header bar does not dictate a
+      // large minimum window width; below SMALL_WINDOW_SIZE they are hidden.
+      foreach (var button in new Button[] { record_button, stop_button }) {
+        var label = GtkHelper.find_first_child_of_type (button, typeof (Label)) as Label;
+        if (label != null) {
+          label.ellipsize = Pango.EllipsizeMode.END;
+        }
+      }
+
       // Make sure the close button is on the left if desktop environment
       // is configured that way.
       this.set_close_button_position ();
