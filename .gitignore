@@ -4,6 +4,16 @@
 /build_*/
 /.vscode/
 
+# dpkg-buildpackage
+/obj-*/
+/debian/peek/
+/debian/.debhelper/
+/debian/files
+/debian/*.substvars
+/debian/*.debhelper
+/debian/*.debhelper.log
+/debian/debhelper-build-stamp
+
 CMakeCache.txt
 CMakeFiles/*
 cmake_install.cmake
