@@ -5,8 +5,10 @@
 [![Translation Status](https://hosted.weblate.org/widgets/peek/-/svg-badge.svg)](https://hosted.weblate.org/engage/peek/?utm_source=widget)
 
 > [!IMPORTANT]
-> The Peek project has been declared deprecated, please read [the announcement](https://github.com/phw/peek/issues/1191).
-> No new features will be developed and issue reporting has been closed.
+> This is a maintained fork of [phw/peek](https://github.com/phw/peek), which was
+> [declared deprecated](https://github.com/phw/peek/issues/1191) in 2023. The fork
+> restores MP4 recording and fixes long-standing bugs; see the
+> [issue tracker](https://github.com/xl0/peek-ng/issues) for what has been addressed.
 
 ![Peek recording itself](https://raw.githubusercontent.com/phw/peek/master/data/screenshots/peek-recording-itself.gif)
 
@@ -57,14 +59,17 @@ for the specific use case of recording screen areas, e.g. for easily showing UI
 features of your own apps or for showing a bug in bug reports. With Peek, you
 simply place the Peek window over the area you want to record and press
 "Record". Peek is optimized for generating animated GIFs, but you can also
-directly record to WebM if you prefer.
+directly record to WebM or MP4 if you prefer.
 
 Peek is not a general purpose screencast app with extended features but
 rather focuses on the single task of creating small, silent screencasts of
 an area of the screen for creating GIF animations or silent WebM videos.
 
 Peek runs on X11 or inside a GNOME Shell Wayland session using XWayland.
-Support for more Wayland desktops might be added in the future (see FAQs below).
+On X11 sessions Peek records with FFmpeg. In a GNOME Wayland session it uses
+the GNOME Shell screen recorder instead, since X11 screen grabbing only sees
+XWayland windows there. The backend can be forced with `peek -b ffmpeg` or
+`peek -b gnome-shell`.
 
 
 ## Requirements
@@ -74,7 +79,7 @@ Support for more Wayland desktops might be added in the future (see FAQs below).
 - GLib >= 2.52
 - [libkeybinder3](https://github.com/kupferlauncher/keybinder)
 - FFmpeg >= 3
-- GStreamer 'Good' plugins (for recording on GNOME Shell)
+- GStreamer 'Good' plugins (for recording in GNOME Wayland sessions)
 - [gifski](https://gif.ski/) (optional but recommended for improved GIF quality)
 
 ### Development
@@ -275,18 +280,23 @@ cases for Peek are recording small user interactions for showing UI features
 of an app you developed, for making short tutorials or for reporting bugs.
 
 ### What about WebM or MP4? Those are well supported on the web.
-Peek allows you to record in WebM format, just choose your preferred output
-format in the preferences. WebM is well supported by modern browsers, even
-though they are still not as universally supported by tools and online services
-as GIFs.
+Peek allows you to record in WebM or MP4 format, just choose your preferred
+output format in the preferences. Both are well supported by modern browsers,
+even though they are still not as universally supported by tools and online
+services as GIFs.
 
 > [!NOTE]
-> Support for MP4 was available till version 1.5.1 but was removed
-> from later versions.
+> Upstream removed MP4 support in 2024. This fork restores it.
 
 ### What is the cause for "Could not start GNOME Shell recorder" errors?
 
-This usually indicates an error while starting the built-in GNOME shell
+On GNOME 42 and later running on X11, the GNOME Shell recorder waits for a
+PipeWire screencast stream that often never arrives, so recording fails with
+"Timeout was reached" or this error after a long freeze. Peek therefore only
+uses the GNOME Shell recorder in Wayland sessions and records with FFmpeg on
+X11. If you start Peek with `-b gnome-shell` on X11, drop that option.
+
+Otherwise this usually indicates an error while starting the built-in GNOME shell
 recorder. Unfortunately Peek does not receive any error details, to find out
 more about this issues look at the GNOME Shell log output in `journalctl`.
 
