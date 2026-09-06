@@ -1,0 +1,23 @@
+peek (1.6.0-1) unstable; urgency=medium
+
+  * New upstream: peek-ng fork of the deprecated phw/peek.
+    - Fixes rendering hanging forever on long recordings.
+    - Restores MP4 recording.
+    - Uses FFmpeg by default on X11 sessions, avoiding the GNOME Shell
+      recorder timeouts on GNOME 42 and later.
+    - Fixes frame drops in GIF recordings, gifski downscaling, the countdown
+      digit being captured, and several crashes and cleanup bugs.
+  * Take over packaging from the orphaned Debian package (#1030266).
+  * debian/control: Point Homepage and Vcs at the fork, make GStreamer
+    plugins Recommends since they are only needed on GNOME Wayland.
+
+ -- Alexey Zaytsev <alexey.zaytsev@gmail.com>  Sun, 06 Sep 2026 17:00:00 -0300
+
+peek (1.5.1+git20230114-1) unstable; urgency=medium
+
+  * QA upload.
+  * Orphan the package. (See #1030266)
+  * New upstream git snapshot declaring project deprecation.
+  * debian/control: Bump Standards-Version to 4.6.2.
+
+ -- Boyuan Yang <byang@debian.org>  Wed, 01 Feb 2023 14:34:03 -0500

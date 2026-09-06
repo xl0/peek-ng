@@ -1,0 +1,43 @@
+Source: peek
+Section: graphics
+Priority: optional
+Maintainer: Alexey Zaytsev <alexey.zaytsev@gmail.com>
+Build-Depends:
+ debhelper-compat (= 13),
+ desktop-file-utils <!nocheck>,
+ gettext,
+ libglib2.0-dev,
+ libgtk-3-dev (>= 3.22),
+ libkeybinder-3.0-dev,
+ libxml2-utils,
+ meson,
+ python3,
+ txt2man,
+ valac,
+Rules-Requires-Root: no
+Standards-Version: 4.6.2
+Homepage: https://github.com/xl0/peek-ng
+Vcs-Git: https://github.com/xl0/peek-ng.git
+Vcs-Browser: https://github.com/xl0/peek-ng
+
+Package: peek
+Architecture: any
+Depends:
+ ffmpeg,
+ ${misc:Depends},
+ ${shlibs:Depends},
+Recommends:
+ gstreamer1.0-plugins-good,
+ gstreamer1.0-pipewire,
+Suggests:
+ gifski,
+ gstreamer1.0-plugins-ugly,
+Description: Simple animated GIF screen recorder with GUI
+ Peek is a simple screen recorder. It is optimized for generating
+ animated GIFs but you can also directly record to WebM or MP4
+ if you prefer.
+ .
+ This is the maintained peek-ng fork of the deprecated upstream project.
+ On X11 sessions it records with FFmpeg; in GNOME Wayland sessions it uses
+ the GNOME Shell screen recorder, which needs the GStreamer good plugins
+ and PipeWire.
