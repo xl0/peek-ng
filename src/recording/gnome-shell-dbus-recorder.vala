@@ -66,6 +66,11 @@ namespace Peek.Recording {
 
         if (success) {
           stdout.printf ("Recording to file %s\n", temp_file);
+          // GNOME >= 40 replaces the template's extension, leaving the
+          // pre-created temp file behind.
+          if (temp_file != file_template) {
+            FileUtils.remove (file_template);
+          }
         } else {
           var message = new StringBuilder ();
           message.append("Could not start GNOME Shell recorder.\n\n");
