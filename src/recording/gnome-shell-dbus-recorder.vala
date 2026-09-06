@@ -25,10 +25,13 @@ namespace Peek.Recording {
 
     public GnomeShellDbusRecorder () throws IOError {
       base ();
+      // The interface has no properties; loading them would block startup
+      // for the full DBus timeout if the service is wedged.
       screencast = Bus.get_proxy_sync (
         BusType.SESSION,
         DBUS_NAME,
-        "/org/gnome/Shell/Screencast");
+        "/org/gnome/Shell/Screencast",
+        DBusProxyFlags.DO_NOT_LOAD_PROPERTIES);
     }
 
     ~GnomeShellDbusRecorder () {
