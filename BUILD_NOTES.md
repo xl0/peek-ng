@@ -23,6 +23,28 @@ From inside the Peek source folder run:
 
     G_MESSAGES_DEBUG=all ./peek
 
+### Long-recording rendering hang
+
+CLI recording and post-processing must drain merged stdout/stderr while
+the child runs. Waiting for exit first lets FFmpeg's progress output fill
+the pipe: FFmpeg then blocks before it can read the `q` stop command or
+finalize the MP4. This matches the symptoms reported in upstream #339.
+
+`Utils.wait_with_output_async` drains byte chunks asynchronously, preserves
+stdin for stop commands, and retains the last 64 KiB for error dialogs.
+Byte reads avoid buffering entire CR-delimited FFmpeg progress streams as
+one line. Invalid UTF-8 is repaired only after collection.
+
+Regression tests write 4 MiB of merged output before waiting for `q` or
+exiting. Both recording-stop and post-processing-success tests time out
+on the unpatched code. Tests also cover failed commands, cancellation,
+bounded diagnostics, and invalid UTF-8.
+
+    meson test -C builddir --print-errorlogs
+
+This checkout uses the 2023-01-14 upstream snapshot (`caf7676`), matching
+Ubuntu 24.04's package. Later upstream versions removed MP4 support.
+
 ### Update translations
 
     ninja peek-update-po
@@ -45,7 +67,7 @@ From inside the Peek source folder run:
 
 #### Runtime requirements
  - libgtk-3-0 (>= 3.20)
- - libglib2.0 (>= 2.38)
+ - libglib2.0 (>= 2.52)
  - libkeybinder-3.0-0
  - ffmpeg >= 3
 

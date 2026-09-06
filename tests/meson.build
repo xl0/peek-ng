@@ -35,6 +35,8 @@ if get_option('build-tests')
     join_paths(meson.source_root(), 'src/recording/screen-recorder.vala'),
     join_paths(meson.source_root(), 'src/recording/base-screen-recorder.vala'),
     join_paths(meson.source_root(), 'src/recording/cli-screen-recorder.vala'),
+    join_paths(meson.source_root(), 'src/recording/ffmpeg-screen-recorder.vala'),
+    join_paths(meson.source_root(), 'src/recording/ffmpeg.vala'),
     join_paths(meson.source_root(), 'src/defaults.vala'),
     join_paths(meson.source_root(), 'src/errordomain.vala'),
     join_paths(meson.source_root(), 'src/utils.vala'),

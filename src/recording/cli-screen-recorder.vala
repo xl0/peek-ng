@@ -20,15 +20,19 @@ namespace Peek.Recording {
         string[] my_args = argv[0:argv.length];
         subprocess = new Subprocess.newv (argv, SubprocessFlags.STDIN_PIPE | SubprocessFlags.STDOUT_PIPE | SubprocessFlags.STDERR_MERGE);
         input = subprocess.get_stdin_pipe ();
-        subprocess.wait_check_async.begin (null, (obj, res) => {
+        var process = subprocess;
+        Utils.wait_with_output_async.begin (process, (obj, res) => {
           bool success = false;
           int status = 0;
           int term_sig = 0;
+          string? output = null;
           try {
-            success = subprocess.wait_check_async.end (res);
-            status = subprocess.get_exit_status ();
-            if (subprocess.get_if_signaled ()) {
-              term_sig = subprocess.get_term_sig ();
+            output = Utils.wait_with_output_async.end (res);
+            success = process.get_successful ();
+            if (process.get_if_exited ()) {
+              status = process.get_exit_status ();
+            } else if (process.get_if_signaled ()) {
+              term_sig = process.get_term_sig ();
             }
 
             debug ("recording process exited, term_sig: %d, exit_status: %d, success: %s",
@@ -37,7 +41,15 @@ namespace Peek.Recording {
             stderr.printf ("Error: %s\n", e.message);
             status = -1;
             success = false;
+            output = e.message;
           }
+
+          // A cancelled recording may have been replaced while it was exiting.
+          if (subprocess != process) {
+            return;
+          }
+          subprocess = null;
+          input = null;
 
           if (temp_file != null) {
             var file = File.new_for_path (temp_file);
@@ -56,15 +68,12 @@ namespace Peek.Recording {
           }
 
           if (!success) {
-            string message = Utils.get_command_failed_message (my_args, subprocess);
+            string message = Utils.get_command_failed_message (my_args, process, output);
             var reason = new RecordingError.RECORDING_ABORTED (message);
             recording_aborted (reason);
           } else {
             finalize_recording ();
           }
-
-          subprocess = null;
-          input = null;
         });
 
 

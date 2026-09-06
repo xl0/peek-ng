@@ -1,5 +1,129 @@
 using Peek;
 using Peek.Recording;
+using Peek.PostProcessing;
+
+// More output than a pipe can hold, including FFmpeg-style CR-only progress.
+const string NOISY_COMMAND =
+  "head -c 2097152 /dev/zero | tr '\\000' x; " +
+  "head -c 2097152 /dev/zero | tr '\\000' y >&2; " +
+  "printf '\\rfinal diagnostic\\n' >&2; ";
+
+class NoisyScreenRecorder : FfmpegScreenRecorder {
+  public bool fail;
+
+  protected override void start_recording (RecordingArea area) throws RecordingError {
+    try {
+      config.output_format = OutputFormat.MP4;
+      temp_file = Utils.create_temp_file ("mp4");
+      string ending = fail ? "exit 7" :
+        "test \"$(dd bs=1 count=1 2>/dev/null)\" = q";
+      spawn_record_command ({ "sh", "-c", NOISY_COMMAND + ending });
+    } catch (FileError e) {
+      throw new RecordingError.INITIALIZING_RECORDING_FAILED (e.message);
+    }
+  }
+
+  public void cleanup () {
+    if (subprocess != null) {
+      subprocess.force_exit ();
+    }
+    remove_temp_file ();
+  }
+}
+
+class NoisyPostProcessor : CliPostProcessor {
+  public bool fail;
+
+  public override async Array<File>? process_async (Array<File> files) throws RecordingError {
+    yield spawn_command_async ({ "sh", "-c",
+      NOISY_COMMAND + (fail ? "exit 7" : "exit 0") });
+    return files;
+  }
+}
+
+void test_noisy_recording (bool fail, bool cancel = false) {
+  var recorder = new NoisyScreenRecorder ();
+  recorder.fail = fail;
+  var loop = new MainLoop ();
+  bool completed = false;
+  bool timed_out = false;
+  recorder.recording_finished.connect ((file) => {
+    assert (!fail && !cancel);
+    FileUtils.remove (file.get_path ());
+    completed = true;
+    loop.quit ();
+  });
+  recorder.recording_aborted.connect ((reason) => {
+    assert (fail || cancel);
+    if (fail) {
+      assert (reason != null);
+      assert ("final diagnostic" in reason.message);
+    } else {
+      assert (reason == null);
+    }
+    completed = true;
+    loop.quit ();
+  });
+  try {
+    recorder.record (RecordingArea ());
+  } catch (RecordingError e) {
+    error ("%s", e.message);
+  }
+  if (!fail) {
+    Timeout.add (1100, () => {
+      if (cancel) {
+        recorder.cancel ();
+      } else {
+        recorder.stop ();
+      }
+      return Source.REMOVE;
+    });
+  }
+  uint timeout = Timeout.add_seconds (5, () => {
+    timed_out = true;
+    recorder.cleanup ();
+    loop.quit ();
+    return Source.REMOVE;
+  });
+  loop.run ();
+  if (!timed_out) {
+    Source.remove (timeout);
+  }
+  recorder.cleanup ();
+  assert (!timed_out);
+  assert (completed);
+}
+
+void test_noisy_postprocessing (bool fail) {
+  var processor = new NoisyPostProcessor ();
+  processor.fail = fail;
+  var loop = new MainLoop ();
+  bool completed = false;
+  bool timed_out = false;
+  processor.process_async.begin (new Array<File> (), (obj, res) => {
+    try {
+      processor.process_async.end (res);
+      assert (!fail);
+    } catch (RecordingError e) {
+      assert (fail);
+      assert ("final diagnostic" in e.message);
+    }
+    completed = true;
+    loop.quit ();
+  });
+  uint timeout = Timeout.add_seconds (5, () => {
+    timed_out = true;
+    processor.cancel ();
+    loop.quit ();
+    return Source.REMOVE;
+  });
+  loop.run ();
+  if (!timed_out) {
+    Source.remove (timeout);
+  }
+  assert (!timed_out);
+  assert (completed);
+}
 
 class TestCliScreenRecorder : CliScreenRecorder {
   public bool stop_command_called { get; set; default = false; }
@@ -44,6 +168,11 @@ void main (string[] args) {
   Test.add_func (
     "/screen-recorder/cli-screen-recorder/test_cancel",
     test_cancel);
+  Test.add_func ("/screen-recorder/noisy/stop", () => test_noisy_recording (false));
+  Test.add_func ("/screen-recorder/noisy/failure", () => test_noisy_recording (true));
+  Test.add_func ("/screen-recorder/noisy/cancel", () => test_noisy_recording (false, true));
+  Test.add_func ("/post-processing/noisy/success", () => test_noisy_postprocessing (false));
+  Test.add_func ("/post-processing/noisy/failure", () => test_noisy_postprocessing (true));
 
   Test.run ();
 }
