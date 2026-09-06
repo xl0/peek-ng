@@ -50,6 +50,9 @@ namespace Peek {
       return settings;
     }
 
+    // True while a global toggle-recording hotkey is actually grabbed.
+    public static bool keybinding_bound { get; private set; default = false; }
+
 #if HAS_KEYBINDER
     public static bool keybindings_paused { get; set; default = false; }
 #endif
@@ -226,8 +229,12 @@ namespace Peek {
             Keybinder.unbind_all (_keybinding_toggle_recording);
           }
 
+          keybinding_bound = false;
           if (value != "") {
-            Keybinder.bind_full (value, handle_keybinding_toggle_recording);
+            keybinding_bound = Keybinder.bind_full (value, handle_keybinding_toggle_recording);
+            if (!keybinding_bound) {
+              warning ("Could not grab global shortcut %s, it may be taken by another application", value);
+            }
           }
 
           _keybinding_toggle_recording = value;

@@ -408,15 +408,19 @@ namespace Peek.Ui {
         update_ui_size (area);
 
         if (!is_recording) {
-          // Shortcut recording hint
-          var shortcut = Application.get_app_settings ();
-          string keys = shortcut.get_string ("keybinding-toggle-recording");
-          uint accelerator_key;
-          Gdk.ModifierType accelerator_mods;
-          Gtk.accelerator_parse (keys, out accelerator_key, out accelerator_mods);
-          var shortcut_hint = Gtk.accelerator_get_label (accelerator_key, accelerator_mods);
-          shortcut_label.set_text (_ ("Start / Stop: %s").printf (shortcut_hint));
-          shortcut_label.show ();
+          // Shortcut recording hint, only when the hotkey is really grabbed
+          if (Application.keybinding_bound) {
+            var shortcut = Application.get_app_settings ();
+            string keys = shortcut.get_string ("keybinding-toggle-recording");
+            uint accelerator_key;
+            Gdk.ModifierType accelerator_mods;
+            Gtk.accelerator_parse (keys, out accelerator_key, out accelerator_mods);
+            var shortcut_hint = Gtk.accelerator_get_label (accelerator_key, accelerator_mods);
+            shortcut_label.set_text (_ ("Start / Stop: %s").printf (shortcut_hint));
+            shortcut_label.show ();
+          } else {
+            shortcut_label.hide ();
+          }
 
           var size_label = new StringBuilder ();
           size_label.printf ("%i x %i", area.width, area.height);
