@@ -19,8 +19,9 @@ BuildRequires:  libappstream-glib
 BuildRequires:  libxml2
 BuildRequires:  txt2man
 BuildRequires:  gzip
-# ffmpeg is in RPM Fusion; ffmpeg-free from Fedora proper works for GIF and WebM.
-Requires:       (ffmpeg or ffmpeg-free)
+# Needs the RPM Fusion build: GIF/APNG use libx264rgb and MP4 uses libx264,
+# neither of which is in Fedora's ffmpeg-free.
+Requires:       ffmpeg
 Recommends:     gstreamer1-plugins-good
 Recommends:     pipewire-gstreamer
 Suggests:       gstreamer1-plugins-ugly
