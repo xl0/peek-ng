@@ -1,5 +1,5 @@
 # Peek - an animated GIF recorder
-[![GitHub release](https://img.shields.io/github/release/phw/peek.svg)](https://github.com/phw/peek/releases)
+[![GitHub release](https://img.shields.io/github/release/xl0/peek-ng.svg)](https://github.com/xl0/peek-ng/releases)
 [![License: GPL v3+](https://img.shields.io/badge/license-GPL%20v3%2B-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Packaging status](https://repology.org/badge/tiny-repos/peek.svg)](https://repology.org/metapackage/peek/packages)
 [![Translation Status](https://hosted.weblate.org/widgets/peek/-/svg-badge.svg)](https://hosted.weblate.org/engage/peek/?utm_source=widget)
@@ -23,7 +23,7 @@ Simple screen recorder with an easy to use interface
   - [Runtime](#runtime)
   - [Development](#development)
 - [Installation](#installation)
-  - [Distribution packages](#distribution-packages)
+  - [Packages](#packages)
   - [From source](#from-source)
 - [Frequently Asked Questions](#frequently-asked-questions)
   - [How can I capture mouse clicks and/or keystrokes?](#how-can-i-capture-mouse-clicks-andor-keystrokes)
@@ -81,12 +81,21 @@ XWayland windows there. The backend can be forced with `peek -b ffmpeg` or
 
 
 ## Installation
-### Distribution packages
-The `peek` package in Alpine, Arch, Debian, Fedora, Gentoo, NixOS, openSUSE
-and others is upstream 1.5.1 from 2020. It still has the bugs this fork
-fixes, most visibly the endless "Rendering…" on long recordings and the GNOME
-Shell recorder timeouts on Ubuntu 22.04 and later. Until this fork ships
-packages, build it from source as described below.
+### Packages
+Every release on the [releases page](https://github.com/xl0/peek-ng/releases)
+ships packages built by CI:
+
+- `.deb` for Ubuntu 22.04 and 24.04 and for Debian 12 and 13
+- `.rpm` for Fedora (needs `ffmpeg` from [RPM Fusion](https://rpmfusion.org/Configuration),
+  or `ffmpeg-free` for GIF and WebM only)
+
+Download the file for your distribution and install it with
+`sudo apt install ./peek_*.deb` or `sudo dnf install ./peek-*.rpm`.
+
+The `peek` package in the distributions' own repositories is upstream 1.5.1
+from 2020. It still has the bugs this fork fixes, most visibly the endless
+"Rendering…" on long recordings and the GNOME Shell recorder timeouts on
+Ubuntu 22.04 and later.
 
 ### From source
 Install the build dependencies:
