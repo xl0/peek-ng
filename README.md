@@ -23,17 +23,7 @@ Simple screen recorder with an easy to use interface
   - [Runtime](#runtime)
   - [Development](#development)
 - [Installation](#installation)
-  - [Official distribution packages](#official-distribution-packages)
-  - [Flatpak](#flatpak)
-  - [Snappy](#snappy)
-  - [AppImage](#appimage)
-  - [Ubuntu](#ubuntu)
-  - [ElementaryOS](#elementaryos)
-  - [Debian](#debian)
-  - [Fedora](#fedora)
-  - [Solus](#solus)
-  - [Arch Linux](#arch-linux)
-  - [Other distributions](#other-distributions)
+  - [Distribution packages](#distribution-packages)
   - [From source](#from-source)
 - [Frequently Asked Questions](#frequently-asked-questions)
   - [How can I capture mouse clicks and/or keystrokes?](#how-can-i-capture-mouse-clicks-andor-keystrokes)
@@ -91,149 +81,42 @@ XWayland windows there. The backend can be forced with `peek -b ffmpeg` or
 
 
 ## Installation
-### Official distribution packages
-Peek is available in official package repositories for the following
-distributions:
-
-- [Alpine Linux](https://pkgs.alpinelinux.org/packages?name=peek)
-- [Arch Linux](https://www.archlinux.org/packages/community/x86_64/peek/)
-- [Debian](https://tracker.debian.org/pkg/peek)
-- [Fedora](https://koji.fedoraproject.org/koji/packageinfo?packageID=28880)
-- [Gentoo](https://packages.gentoo.org/packages/media-video/peek)
-- [NixOS](https://search.nixos.org/packages?channel=unstable&query=peek)
-- [OpenSUSE Tumbleweed](https://software.opensuse.org/package/peek)
-- [Parabola](https://www.parabola.nu/packages/?q=peek)
-- [Solus](https://dev.getsol.us/source/peek/)
-
-### Flatpak
-Peek can be installed on all distributions supporting [Flatpak](https://flatpak.org) from [Flathub](https://flathub.org/apps/details/com.uploadedlobster.peek).
-To install, either download
-[com.uploadedlobster.peek.flatpakref](https://flathub.org/repo/appstream/com.uploadedlobster.peek.flatpakref)
-and open it with GNOME Software or install via command line (first time flatpak
-users need to follow the [flatpak/flathub setup instructions](https://flatpak.org/setup/) first):
-
-    flatpak install flathub com.uploadedlobster.peek
-
-For full functionality you should also install
-[xdg-desktop-portal-gtk](https://github.com/flatpak/xdg-desktop-portal-gtk).
-It is available for most current distributions. Once installed, you can run Peek
-via its application icon in your desktop environment or from the command line:
-
-    flatpak run com.uploadedlobster.peek
-
-To update to the latest version run:
-
-    flatpak update --user com.uploadedlobster.peek
-
-To test the latest development version you can install
-[peek-master.flatpakref](http://flatpak.uploadedlobster.com/peek-master.flatpakref)
-
-### Snappy
-Peek no longer has officially supported Snap packages, see
-[the announcement](https://www.reddit.com/r/Ubuntu/comments/870bcn/snap_support_for_peek_screen_recorder_discontinued/).
-Please consider using the Flatpak or AppImage versions or use the Ubuntu PPA
-if you are using Ubuntu.
-
-### AppImage
-Peek [AppImage](https://appimage.org/) packages are available on the
-[release page](https://github.com/phw/peek/releases). To run download the
-`.AppImage` file and set it executable, then just run it. You can name the file
-however you want, e.g. you can name it just `peek` and place it in `$HOME/bin`
-for easy access. See the [AppImage wiki](https://github.com/AppImage/AppImageKit/wiki)
-for more information on how to use AppImages and integrate them with your system.
-
-### Ubuntu
-You can install the latest versions of Peek from the
-[Ubuntu PPA](https://code.launchpad.net/~peek-developers/+archive/ubuntu/stable).
-
-    sudo add-apt-repository ppa:peek-developers/stable
-    sudo apt update
-    sudo apt install peek
-
-If you want to use the latest development version there is also a
-[PPA with daily builds](https://code.launchpad.net/~peek-developers/+archive/ubuntu/daily)
-available. Use the repository `ppa:peek-developers/daily` in the above commands.
-
-### ElementaryOS
-Adding PPA repositories requires the package `software-properties-common`
-
-    sudo apt install software-properties-common
-    sudo add-apt-repository ppa:peek-developers/stable
-    sudo apt update
-    sudo apt install peek
-
-If you want to use the latest development version there is also a
-[PPA with daily builds](https://code.launchpad.net/~peek-developers/+archive/ubuntu/daily)
-available. Use the repository `ppa:peek-developers/daily` in the above commands.
-
-### Debian
-There are official Debian packages for Debian 11 ("Bullseye") and Debian 10 ("Buster") via
-main repository and packages for Debian 9 ("Stretch") via
-[`stretch-backports`](https://packages.debian.org/stretch-backports/peek)
-repository. Please refer to [Debian Backports Website](https://backports.debian.org/)
-for detailed usage of `stretch-backports` repository.
-
-After enabling `stretch-backports` for Debian 9 (Debian 10 or Debian 11 or `Sid` don't need
-any tweaks at all), installation can be done by simply typing:
-
-    sudo apt install peek
-
-### Fedora
-**Note: Fedora by default does not provide the required `ffmpeg` package in its
-repositories. For this reason it is recommended for Fedora users to install Peek
-with Flatpak, see above. If you prefer to install Peek from the repositories
-you should install `ffmpeg` separately as described below.**
-
-Peek is available in the default repositories (Fedora 29 and later):
-
-    sudo dnf install peek
-
-To install the required `ffmpeg` package you can use the RPM Fusion free
-repository, see the
-[setup instructions for RPM Fusion](https://rpmfusion.org/Configuration).
-Once the repository is enabled install FFmpeg with:
-
-    sudo dnf install ffmpeg
-
-### Solus
-Solus users can simply install with:
-
-    sudo eopkg it peek
-
-### Arch Linux
-Arch Linux users can simply install with:
-
-    sudo pacman -S peek
-
-For GNOME Shell recording there are some optional packages you can choose from:
-
-    gst-plugins-good: Recording under Gnome Shell
-    gifski: High quality GIF animations with thousands of colors
-
-If you have a package manager for AUR (or fetch from AUR manually) the git
-version is available [here](https://aur.archlinux.org/packages/peek-git)
-
-
-### Other distributions
-See the [Repology package list](https://repology.org/metapackage/peek/packages)
-for a list of Peek packages for various distributions.
+### Distribution packages
+The `peek` package in Alpine, Arch, Debian, Fedora, Gentoo, NixOS, openSUSE
+and others is upstream 1.5.1 from 2020. It still has the bugs this fork
+fixes, most visibly the endless "Rendering…" on long recordings and the GNOME
+Shell recorder timeouts on Ubuntu 22.04 and later. Until this fork ships
+packages, build it from source as described below.
 
 ### From source
-You can build and install Peek using Meson with Ninja:
+Install the build dependencies:
 
-    git clone https://github.com/phw/peek.git
-    cd peek
-    meson --prefix=/usr/local builddir
-    cd builddir
-    ninja
+    # Debian / Ubuntu
+    sudo apt install meson ninja-build valac gettext libxml2-utils \
+      libgtk-3-dev libkeybinder-3.0-dev ffmpeg
 
-    # Run directly from source
-    ./src/peek
+    # Fedora (ffmpeg needs RPM Fusion, see https://rpmfusion.org/Configuration)
+    sudo dnf install meson vala gettext libxml2 gtk3-devel keybinder3-devel ffmpeg
 
-    # Install system-wide
-    sudo ninja install
+    # Arch Linux
+    sudo pacman -S meson vala gettext libxml2 gtk3 libkeybinder3 ffmpeg
 
-*Note: `ninja` might be called `ninja-build` on some distributions.*
+Then build and install:
+
+    git clone https://github.com/xl0/peek-ng.git
+    cd peek-ng
+    meson setup --prefix=/usr/local builddir
+    ninja -C builddir
+
+    # Run directly from the build directory
+    ./builddir/src/peek
+
+    # Or install system-wide
+    sudo ninja -C builddir install
+
+For high quality GIFs additionally install [gifski](https://gif.ski/) and
+enable it in the preferences. Recording in GNOME Wayland sessions needs the
+GStreamer "good" plugins and a running PipeWire with its session manager.
 
 ## Frequently Asked Questions
 ### How can I capture mouse clicks and/or keystrokes?
@@ -245,8 +128,8 @@ is for drawing small circles around mouse clicks.
 
 ### How can I improve the quality of recorded GIF files
 To get the best possible quality you should install the [gifski](https://gif.ski/)
-GIF encoder. If available Peek will automatically use gifski and will provide
-a quality slider in the preferences dialog. The default value will give a
+GIF encoder. If it is installed the preferences dialog offers a gifski option
+with a quality slider. The default value will give a
 balanced result between quality and file size. Set the quality to maximum if you
 want to get the highest possible quality even with thousands of colors. The file
 size will increase significantly, though (see below).
