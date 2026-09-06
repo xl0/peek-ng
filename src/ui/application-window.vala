@@ -590,10 +590,10 @@ namespace Peek.Ui {
     }
 
     private void start_recording () {
-      // Actually start the recording on next idle time, making sure
-      // all queued painting happens before this.
-      start_recording_event_source = Idle.add_full (Priority.HIGH_IDLE, () => {
-        Source.remove (start_recording_event_source);
+      // Start the recording only after the pending repaint: GDK draws at
+      // priority 120, so anything higher (lower number) would still capture
+      // the countdown digit.
+      start_recording_event_source = Idle.add_full (Priority.DEFAULT_IDLE, () => {
         start_recording_event_source = 0;
         update_time ();
         var area = get_recording_area ();
@@ -603,7 +603,6 @@ namespace Peek.Ui {
 
         try {
           recorder.record (area);
-          return true;
         } catch (RecordingError e) {
           stderr.printf ("Failed to initialize recorder: %s\n", e.message);
           leave_recording_state ();
@@ -611,8 +610,8 @@ namespace Peek.Ui {
             this,
             _ ("Recording could not be started due to an unexpected error."),
             e);
-          return false;
         }
+        return Source.REMOVE;
       });
     }
 
