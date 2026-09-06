@@ -87,6 +87,7 @@ namespace Peek.Recording {
       }
 
       is_recording = success;
+      recording_started ();
     }
 
     public static bool is_available () throws PeekError {
