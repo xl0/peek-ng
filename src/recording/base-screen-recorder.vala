@@ -134,9 +134,13 @@ namespace Peek.Recording {
       files.append_val (File.new_for_path (temp_file));
 
       active_post_processor = pipeline;
-      files = yield pipeline.process_async (files);
-      active_post_processor = null;
-      temp_file = null;
+      try {
+        files = yield pipeline.process_async (files);
+      } finally {
+        // The pipeline deletes its input files even on failure.
+        active_post_processor = null;
+        temp_file = null;
+      }
 
       if (files == null || files.length == 0) {
         return null;
