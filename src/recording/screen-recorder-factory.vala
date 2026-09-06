@@ -14,13 +14,22 @@ namespace Peek.Recording {
     public static ScreenRecorder create_default_screen_recorder () throws PeekError {
       string recorder;
 
+      // The GNOME Shell recorder is only needed under Wayland, where x11grab
+      // through XWayland captures black outside X clients. On X11 sessions
+      // FFmpeg sees the whole screen and starts instantly, while the shell
+      // recorder on GNOME >= 42 waits for a PipeWire stream that often never
+      // comes and times out after 25 s.
 #if ! DISABLE_GNOME_SHELL
-      if (GnomeShellDbusRecorder.is_available ()) {
+      if (DesktopIntegration.is_wayland () && GnomeShellDbusRecorder.is_available ()) {
         recorder = "gnome-shell";
       } else
 #endif
       if (FfmpegScreenRecorder.is_available ()) {
         recorder = "ffmpeg";
+#if ! DISABLE_GNOME_SHELL
+      } else if (GnomeShellDbusRecorder.is_available ()) {
+        recorder = "gnome-shell";
+#endif
       } else {
         throw new PeekError.NO_SUITABLE_SCREEN_RECORDER (
           _ ("Peek requires FFmpeg or running GNOME Shell session."));
