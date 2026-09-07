@@ -31,7 +31,10 @@ namespace Peek {
         if (child_type.is_a (type)) {
           return child;
         } else if (child_type.is_a (typeof (Container))) {
-          return find_first_child_of_type ((Container) child, type);
+          var found = find_first_child_of_type ((Container) child, type);
+          if (found != null) {
+            return found;
+          }
         }
       }
 

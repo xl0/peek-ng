@@ -20,9 +20,9 @@ namespace Peek.Ui {
       Gtk.Window main_window, string summary, Error? error = null) {
       if (instance == null) {
         instance = new ErrorDialog ();
-        instance.delete_event.connect ((event) => {
+        instance.delete_event.connect ((dialog, event) => {
           instance = null;
-          main_window.set_keep_above (true);
+          ((Gtk.Window) dialog).transient_for.set_keep_above (true);
           return false;
         });
       }

@@ -18,9 +18,9 @@ namespace Peek.Ui {
       if (instance == null) {
         var aboutDialog = new AboutDialog ();
         instance = aboutDialog;
-        instance.delete_event.connect ((event) => {
+        instance.delete_event.connect ((dialog, event) => {
           instance = null;
-          main_window.set_keep_above (true);
+          ((Gtk.Window) dialog).transient_for.set_keep_above (true);
           return false;
         });
       }
