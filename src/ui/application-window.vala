@@ -849,22 +849,18 @@ namespace Peek.Ui {
 #if ! DISABLE_OPEN_FILE_MANAGER
       var parameter = new Variant.string (file.get_uri ());
 
-      // Unity does not allow actions on notifications, so we disable
-      // notification actions there.
-      if (!DesktopIntegration.is_unity ()) {
-        notification.set_body (_ ("Click here to show the saved file in your file manager."));
-        notification.add_button_with_target_value (
-          _ ("Show in file manager"),
+      notification.set_body (_ ("Click here to show the saved file in your file manager."));
+      notification.add_button_with_target_value (
+        _ ("Show in file manager"),
+        "app.show-file",
+        parameter);
+
+      // Plasma and XFCE will show an empty button for the default action
+      if (!DesktopIntegration.is_plasma () &&
+        !DesktopIntegration.is_xfce ()) {
+        notification.set_default_action_and_target_value (
           "app.show-file",
           parameter);
-
-        // Plasma and XFCE will show an empty button for the default action
-        if (!DesktopIntegration.is_plasma () &&
-          !DesktopIntegration.is_xfce ()) {
-          notification.set_default_action_and_target_value (
-            "app.show-file",
-            parameter);
-        }
       }
 #endif
 

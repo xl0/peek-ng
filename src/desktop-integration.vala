@@ -128,10 +128,6 @@ namespace Peek {
       return folder;
     }
 
-    public static bool is_unity () {
-      return xdg_current_desktop_contains ("Unity");
-    }
-
     public static bool is_gnome () {
       return xdg_current_desktop_contains ("GNOME");
     }
