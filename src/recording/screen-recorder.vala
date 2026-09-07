@@ -10,7 +10,7 @@ This software is licensed under the GNU General Public License
 namespace Peek.Recording {
 
   public interface ScreenRecorder : Object {
-    public abstract bool is_recording { get; protected set; }
+    public abstract bool is_recording { get; }
 
     public abstract RecordingConfig config { get; protected set; }
 

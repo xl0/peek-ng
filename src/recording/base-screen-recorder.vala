@@ -11,21 +11,34 @@ using Peek.PostProcessing;
 
 namespace Peek.Recording {
 
+  /**
+  * Owns the lifecycle of a take. Backends implement start_recording and
+  * stop_recording and report back through finalize_recording (the file is
+  * complete) or recording_failed (it is not); all state transitions and
+  * signals live here.
+  */
   public abstract class BaseScreenRecorder : Object, ScreenRecorder {
+    protected enum State {
+      IDLE,       // nothing running; also after cancel while a backend still exits
+      RECORDING,
+      STOPPING,   // stop requested, waiting for the backend to finish the file
+      PROCESSING  // post-processing pipeline running
+    }
+
+    private State _state = State.IDLE;
+    protected State state {
+      get { return _state; }
+    }
+
     protected string temp_file;
 
-    public bool is_recording { get; protected set; }
+    public bool is_recording {
+      get { return _state == State.RECORDING; }
+    }
 
     public RecordingConfig config { get; protected set; }
 
-    private PostProcessor? active_post_processor = null;
-
-    private bool _is_cancelling;
-    protected bool is_cancelling {
-      get {
-        return _is_cancelling && !is_recording;
-      }
-    }
+    private PostProcessingPipeline? pipeline = null;
 
     private int64 start_time = 0;
 
@@ -35,8 +48,7 @@ namespace Peek.Recording {
           return 0;
         }
 
-        var now = get_monotonic_time ();
-        return (now - start_time) / 1000000;
+        return (get_monotonic_time () - start_time) / 1000000;
       }
     }
 
@@ -45,66 +57,98 @@ namespace Peek.Recording {
     }
 
     public void record (RecordingArea area) throws RecordingError {
-      // Cancel running recording
       cancel ();
       start_recording (area);
       start_time = get_monotonic_time ();
+      _state = State.RECORDING;
+      recording_started ();
     }
 
     public void stop () {
       debug ("Recording stopped");
 
-      if (is_recording) {
-        _is_cancelling = false;
-        is_recording = false;
+      if (_state == State.RECORDING) {
+        _state = State.STOPPING;
         stop_recording ();
       } else {
         cancel ();
       }
     }
 
-    protected void finalize_recording () {
-      debug ("Started post processing");
-      var pipeline = build_post_processor_pipeline ();
-      run_post_processors_async.begin (pipeline, (obj, res) => {
-        debug ("Finished post processing");
-        try {
-          var file = run_post_processors_async.end (res);
-          FileUtils.chmod (file.get_path (), 0644);
-          recording_finished (file);
-        } catch (RecordingError e) {
-          handle_postprocessing_failed (e);
-        }
-      });
-      recording_postprocess_started ();
-    }
-
-    private void handle_postprocessing_failed (RecordingError reason) {
-      if (_is_cancelling) {
-        _is_cancelling = false;
-        return;
-      } else {
-        recording_aborted (reason);
-      }
-    }
-
     public void cancel () {
-      _is_cancelling = true;
+      var previous = _state;
+      _state = State.IDLE;
       start_time = 0;
-      if (is_recording) {
-        is_recording = false;
-        stop_recording ();
-        remove_temp_file ();
-        recording_aborted (null);
-      } else if (active_post_processor != null) {
-        active_post_processor.cancel ();
-        active_post_processor = null;
-        recording_aborted (null);
+
+      switch (previous) {
+        case State.RECORDING:
+        case State.STOPPING:
+          stop_recording ();
+          remove_temp_file ();
+          recording_aborted (null);
+          break;
+        case State.PROCESSING:
+          pipeline.cancel ();
+          pipeline = null;
+          recording_aborted (null);
+          break;
+        default:
+          break;
       }
     }
 
     protected abstract void start_recording (RecordingArea area) throws RecordingError;
     protected abstract void stop_recording ();
+
+    /**
+    * Backend callback: the recording file is complete. Ignored after cancel.
+    */
+    protected void finalize_recording () {
+      if (_state != State.STOPPING) {
+        return;
+      }
+
+      debug ("Started post processing");
+      _state = State.PROCESSING;
+      var this_pipeline = build_post_processor_pipeline ();
+      pipeline = this_pipeline;
+      run_post_processors_async.begin (this_pipeline, (obj, res) => {
+        debug ("Finished post processing");
+        // After cancel() a new take may already own the state; a superseded
+        // callback must only clean up after itself.
+        var cancelled = pipeline != this_pipeline;
+        if (!cancelled) {
+          _state = State.IDLE;
+          pipeline = null;
+          temp_file = null;
+        }
+
+        try {
+          var file = run_post_processors_async.end (res);
+          if (cancelled) {
+            FileUtils.remove (file.get_path ());
+            return;
+          }
+          FileUtils.chmod (file.get_path (), 0644);
+          recording_finished (file);
+        } catch (RecordingError e) {
+          if (!cancelled) {
+            recording_aborted (e);
+          }
+        }
+      });
+      recording_postprocess_started ();
+    }
+
+    /**
+    * Backend callback: the recording ended without a usable file.
+    */
+    protected void recording_failed (RecordingError reason) {
+      _state = State.IDLE;
+      start_time = 0;
+      remove_temp_file ();
+      recording_aborted (reason);
+    }
 
     protected virtual PostProcessingPipeline build_post_processor_pipeline () {
       var pipeline = new PostProcessingPipeline ();
@@ -127,14 +171,8 @@ namespace Peek.Recording {
       var files = new Array<File> ();
       files.append_val (File.new_for_path (temp_file));
 
-      active_post_processor = pipeline;
-      try {
-        files = yield pipeline.process_async (files);
-      } finally {
-        // The pipeline deletes its input files even on failure.
-        active_post_processor = null;
-        temp_file = null;
-      }
+      // The pipeline deletes its input files, including temp_file.
+      files = yield pipeline.process_async (files);
 
       if (files.length == 0) {
         throw new RecordingError.POSTPROCESSING_ABORTED (

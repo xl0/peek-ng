@@ -94,8 +94,6 @@ namespace Peek.Recording {
         throw new RecordingError.INITIALIZING_RECORDING_FAILED (e.message);
       }
 
-      is_recording = success;
-      recording_started ();
     }
 
     public static bool is_available () throws PeekError {
@@ -142,7 +140,7 @@ namespace Peek.Recording {
     protected override void stop_recording () {
       try {
         screencast.stop_screencast ();
-        if (!is_cancelling) {
+        if (state == State.STOPPING) {
           // Add a small timeout after GNOME Shell recorder was stopped.
           // The recorder will stop the GST pipeline, but there might be still
           // some cleanup / finalization to do. Without this the post-processing
@@ -153,15 +151,10 @@ namespace Peek.Recording {
             return Source.REMOVE;
           });
         }
-      } catch (DBusError e) {
+      } catch (Error e) {
         stderr.printf ("Error: %s\n", e.message);
-        if (!is_cancelling) {
-          recording_aborted (new RecordingError.RECORDING_ABORTED (e.message));
-        }
-      } catch (IOError e) {
-        stderr.printf ("Error: %s\n", e.message);
-        if (!is_cancelling) {
-          recording_aborted (new RecordingError.RECORDING_ABORTED (e.message));
+        if (state == State.STOPPING) {
+          recording_failed (new RecordingError.RECORDING_ABORTED (e.message));
         }
       }
     }
