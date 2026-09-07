@@ -137,10 +137,12 @@ Bump `Version:` and add a `%changelog` entry for a release.
 
 ### Releasing
 
-1. Bump the version in `meson.build`, `debian/changelog`, `rpm/peek.spec`
-   and add a `<release>` to `data/com.uploadedlobster.peek.appdata.xml.in`
-   and an entry to `CHANGES.md`.
-2. Merge, then tag the merge commit `v<version>` and push the tag.
+1. Collect the changes under a `# Version <version> - unreleased` heading at
+   the top of `CHANGES.md` and merge that.
+2. On an up-to-date `main`, run `tools/release.sh <version>`. It stamps the
+   date and version into `CHANGES.md`, `meson.build`, `debian/changelog`,
+   `rpm/peek.spec` and the AppStream release list, shows the diff, and after
+   a `y` commits, tags `v<version>` and pushes.
 3. The Packages workflow builds the `.deb` files for Ubuntu 22.04/24.04 and
    Debian 12/13 and the Fedora `.rpm`, and attaches them to a new GitHub
    release with generated notes.
