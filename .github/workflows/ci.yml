@@ -21,3 +21,23 @@ jobs:
           ninja -C builddir
       - name: Test
         run: meson test -C builddir --print-errorlogs
+
+  ui-smoke:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            meson ninja-build valac gettext libxml2-utils \
+            libgtk-3-dev libkeybinder-3.0-dev ffmpeg \
+            xvfb openbox xdotool dbus-daemon
+      - name: Build
+        run: |
+          meson setup builddir
+          ninja -C builddir
+      - name: Drive the UI under Xvfb
+        run: |
+          xvfb-run -a -s "-screen 0 1280x800x24" dbus-run-session -- \
+            bash -c 'openbox & sleep 1; tests/ui-smoke.sh'
