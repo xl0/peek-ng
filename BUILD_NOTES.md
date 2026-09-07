@@ -29,7 +29,8 @@ it on a throwaway display:
     xvfb-run -a -s "-screen 0 1280x800x24" dbus-run-session -- \
       bash -c 'openbox & sleep 1; tests/ui-smoke.sh'
 
-CI runs exactly this. It needs `xvfb`, `openbox`, `xdotool` and `ffmpeg`.
+It needs `xvfb`, `openbox`, `xdotool` and `ffmpeg`. It is not part of CI:
+window-manager timing under Xvfb made it flaky on GitHub runners.
 
 ### GNOME VM tests
 

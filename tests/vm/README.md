@@ -2,7 +2,8 @@
 
 Two libvirt VMs with an autologin GNOME **Xorg** session, for everything the
 Xvfb smoke test cannot see: the GNOME Shell recorder backend, PipeWire
-states, Yaru theme sizing, real notifications.
+states, Yaru theme sizing, real notifications. They are also the reliable
+place to run the smoke test itself.
 
 - `gnome`: Ubuntu 24.04, GNOME Shell 46
 - `jammy`: Ubuntu 22.04, GNOME Shell 42 (the configuration behind most

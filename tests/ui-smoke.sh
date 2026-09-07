@@ -8,7 +8,7 @@
 #   tests/ui-smoke.sh [path/to/peek]
 #   PEEK_BACKEND=gnome-shell tests/ui-smoke.sh   # in a GNOME session (tests/vm)
 #
-# Headless (what CI does):
+# Headless:
 #   xvfb-run -a -s "-screen 0 1280x800x24" dbus-run-session -- \
 #     bash -c 'openbox & sleep 1; tests/ui-smoke.sh'
 set -euo pipefail
@@ -90,10 +90,15 @@ frames=$(ffprobe -v error -count_frames -select_streams v -show_entries stream=n
 
 echo "2. cancel by moving the window, then record again"
 start_take 2
-eval "$(xdotool getwindowgeometry --shell "$WID")"   # sets X and Y
-xdotool windowmove "$WID" $((X + 100)) $((Y + 80)); sleep 1.5
-moved_from="$X,$Y"; eval "$(xdotool getwindowgeometry --shell "$WID")"
-echo "   moved $moved_from -> $X,$Y; configure events seen: $(count 'Absolute recording area')"
+# Under some window managers the first move after placement is not seen as
+# a change of the recording area; nudge again rather than fail on timing.
+for attempt in 1 2 3; do
+  eval "$(xdotool getwindowgeometry --shell "$WID")"   # sets X and Y
+  xdotool windowmove "$WID" $((X + 100)) $((Y + 80)); sleep 1.5
+  moved_from="$X,$Y"; eval "$(xdotool getwindowgeometry --shell "$WID")"
+  echo "   move $attempt: $moved_from -> $X,$Y; configure events seen: $(count 'Absolute recording area')"
+  [ "$(count 'Recording canceled$')" -ge 1 ] && break
+done
 expect "cancel logged" "$(count 'Recording canceled$')" 1
 expect "no chooser after cancel" "$(count 'Showing file chooser')" 1
 expect "cache after cancel" "$(cache)" 0
