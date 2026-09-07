@@ -21,23 +21,14 @@ namespace Peek.PostProcessing {
       this.config = config;
     }
 
-    public override async Array<File>? process_async (Array<File> files) throws RecordingError {
+    public override async Array<File> process_async (Array<File> files) throws RecordingError {
       var input_file = files.index (0);
       var palette_file = yield generate_palette_async (input_file);
-
-      if (palette_file == null) {
-        return null;
-      }
-
       var output_file = yield generate_animation_async (input_file, palette_file);
       try {
         yield palette_file.delete_async ();
       } catch (Error e) {
         stderr.printf ("Error deleting palette file: %s\n", e.message);
-      }
-
-      if (output_file == null) {
-        return null;
       }
 
       var result = new Array<File> ();
@@ -49,7 +40,7 @@ namespace Peek.PostProcessing {
       return Utils.check_for_executable ("ffmpeg");
     }
 
-    private async File? generate_palette_async (File file) throws RecordingError {
+    private async File generate_palette_async (File file) throws RecordingError {
       try {
         var palette_file = Utils.create_temp_file ("png");
 
@@ -74,7 +65,7 @@ namespace Peek.PostProcessing {
       }
     }
 
-    private async File? generate_animation_async (File input_file, File palette_file) throws RecordingError {
+    private async File generate_animation_async (File input_file, File palette_file) throws RecordingError {
       try {
         var extension = Utils.get_file_extension_for_format (config.output_format);
         var output_file = Utils.create_temp_file (extension);

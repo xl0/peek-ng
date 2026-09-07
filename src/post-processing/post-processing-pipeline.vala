@@ -10,35 +10,36 @@ This software is licensed under the GNU General Public License
 namespace Peek.PostProcessing {
 
   /**
-  * Uses ffmpeg to generate PNG images for each frame.
+  * Runs post processors in sequence, feeding each one the previous output
+  * and deleting the intermediate files. Cancelling kills the active step,
+  * which then fails with POSTPROCESSING_ABORTED like any other error.
   */
   public class PostProcessingPipeline : Object, PostProcessor {
-    private Array<PostProcessor> pipeline;
+    private Array<PostProcessor> pipeline = new Array<PostProcessor> ();
     private PostProcessor? active_post_processor = null;
     private bool cancelled = false;
-
-    public PostProcessingPipeline () {
-      pipeline = new Array<PostProcessor>();
-    }
 
     public void add (PostProcessor post_processor) {
       pipeline.append_val (post_processor);
     }
 
-    public async Array<File>? process_async (Array<File> files) throws RecordingError {
+    public async Array<File> process_async (Array<File> files) throws RecordingError {
       foreach (var post_processor in pipeline.data) {
-        debug ("Running post processor %s with files %s", post_processor.get_type ().name (), files.length.to_string ());
-
+        // cancel() may have arrived while the previous step's files were
+        // being deleted, with nothing running to kill.
         if (cancelled) {
-          return null;
+          throw new RecordingError.POSTPROCESSING_ABORTED ("Post processing cancelled.");
         }
 
+        debug ("Running post processor %s with %u files", post_processor.get_type ().name (), files.length);
+
+        var input = files;
         active_post_processor = post_processor;
-        Array<File>? new_files = null;
         try {
-          new_files = yield post_processor.process_async (files);
+          files = yield post_processor.process_async (input);
         } finally {
-          foreach (var file in files.data) {
+          active_post_processor = null;
+          foreach (var file in input.data) {
             try {
               yield file.delete_async ();
             } catch (Error e) {
@@ -46,26 +47,15 @@ namespace Peek.PostProcessing {
             }
           }
         }
-
-        if (new_files == null) {
-          cancelled = true;
-          active_post_processor = null;
-          return null;
-        }
-
-        files = new_files;
       }
-
-      active_post_processor = null;
 
       return files;
     }
 
     public void cancel () {
-      if (active_post_processor != null && !cancelled) {
-        cancelled = true;
+      cancelled = true;
+      if (active_post_processor != null) {
         active_post_processor.cancel ();
-        active_post_processor = null;
       }
     }
   }

@@ -21,7 +21,7 @@ namespace Peek.PostProcessing {
       this.config = config;
     }
 
-    public override async Array<File>? process_async (Array<File> files) throws RecordingError {
+    public override async Array<File> process_async (Array<File> files) throws RecordingError {
       try {
         var extension = Utils.get_file_extension_for_format (OutputFormat.GIF);
         var output_file = Utils.create_temp_file (extension);
