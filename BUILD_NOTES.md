@@ -19,6 +19,18 @@ From inside the Peek source folder run:
 
     ninja test
 
+### UI smoke test
+
+`tests/ui-smoke.sh` starts the built `peek`, records, cancels and saves
+through the real window using `xdotool`, and checks the log and the output
+and cache folders. It grabs the global hotkey and records the screen, so run
+it on a throwaway display:
+
+    xvfb-run -a -s "-screen 0 1280x800x24" dbus-run-session -- \
+      bash -c 'openbox & sleep 1; tests/ui-smoke.sh'
+
+CI runs exactly this. It needs `xvfb`, `openbox`, `xdotool` and `ffmpeg`.
+
 ### Running Peek with debug output
 
     G_MESSAGES_DEBUG=all ./peek
