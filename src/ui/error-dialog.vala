@@ -44,8 +44,6 @@ namespace Peek.Ui {
     [GtkChild]
     private unowned Expander error_details_container;
 
-    private Error? error = null;
-
     public string summary {
       get {
         return error_summary.label;
@@ -56,8 +54,6 @@ namespace Peek.Ui {
     }
 
     public void show_error (Error? error) {
-      this.error = error;
-
       if (error != null) {
         error_details.text = error.message;
         error_details_container.show ();

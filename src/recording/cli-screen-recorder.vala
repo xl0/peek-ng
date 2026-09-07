@@ -89,10 +89,6 @@ namespace Peek.Recording {
         subprocess.force_exit ();
       }
     }
-
-    protected virtual bool is_exit_status_success (int status) {
-      return Utils.is_exit_status_success (status);
-    }
   }
 
 }

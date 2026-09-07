@@ -61,39 +61,8 @@ namespace Peek {
       return output_format.to_string ();
     }
 
-    public static bool string_is_empty (string? str) {
-      if (str == null) return true;
-
-      unichar c;
-      for (int i = 0; str.get_next_char (ref i, out c);) {
-        if (!c.isspace () && !c.iscntrl ()) return false;
-      }
-
-      return true;
-    }
-
     public static int make_even (int i) {
       return (i / 2) * 2;
-    }
-
-    /**
-    * Returns available system memory in kiB.
-    * Returns -1 if memory could not be read
-    */
-    public static int get_available_system_memory () {
-      var stream = FileStream.open ("/proc/meminfo", "r");
-      assert (stream != null);
-
-      string line;
-      while ((line = stream.read_line ()) != null) {
-        if (line.has_prefix ("MemAvailable")) {
-          int memory = 0;
-          line.scanf ("MemAvailable: %d kB", &memory);
-          return memory;
-        }
-      }
-
-      return -1;
     }
 
     public static string get_command_failed_message (

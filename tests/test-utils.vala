@@ -8,11 +8,6 @@ void test_make_even () {
   assert(Utils.make_even (-12) == -12);
 }
 
-void test_get_available_system_memory () {
-  int memory = Utils.get_available_system_memory ();
-  assert(memory > 0);
-}
-
 void test_command_output () {
   var loop = new MainLoop ();
   try {
@@ -49,7 +44,6 @@ void main (string[] args) {
   Test.init (ref args);
 
   Test.add_func ("/utils/test_make_even", test_make_even);
-  Test.add_func ("/utils/get_available_system_memory", test_get_available_system_memory);
   Test.add_func ("/utils/command_output", test_command_output);
 
   Test.run ();

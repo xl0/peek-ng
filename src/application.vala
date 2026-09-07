@@ -29,20 +29,6 @@ namespace Peek {
         return settings;
       }
 
-#if DEBUG
-      try {
-        var settings_dir = "./data/";
-        var schema_source = new SettingsSchemaSource.from_directory (settings_dir, null, false);
-        SettingsSchema? schema = schema_source.lookup (APP_ID, false);
-        if (schema != null) {
-          settings = new Settings.full (schema, null, null);
-        }
-      }
-      catch (Error e) {
-        debug ("Loading local settings failed: %s", e.message);
-      }
-#endif
-
       if (settings == null) {
         settings = new Settings (APP_ID);
       }
@@ -303,12 +289,8 @@ namespace Peek {
       load_stylesheet_by_name ("peek");
       string theme = DesktopIntegration.get_theme_name ();
       debug ("GTK theme: %s", theme);
-      if (theme == "Ambiance" || theme == "Breeze" || theme == "Breeze-Dark") {
+      if (theme == "Breeze" || theme == "Breeze-Dark") {
         load_stylesheet_by_name (theme.down ());
-      }
-
-      if (DesktopIntegration.is_unity ()) {
-        load_stylesheet_by_name ("unity");
       }
     }
 
