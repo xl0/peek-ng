@@ -1,0 +1,49 @@
+#cloud-config
+hostname: @HOSTNAME@
+users:
+  - name: peek
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    groups: [adm, video, audio, sudo]
+    lock_passwd: false
+    ssh_authorized_keys:
+      - @SSH_PUBKEY@
+chpasswd:
+  expire: false
+  users:
+    - name: peek
+      password: peek
+      type: text
+ssh_pwauth: true
+package_update: true
+packages:
+  - ubuntu-desktop-minimal
+  - pipewire
+  - gstreamer1.0-pipewire
+  - gstreamer1.0-plugins-good
+  - ffmpeg
+  - meson
+  - ninja-build
+  - valac
+  - gettext
+  - libxml2-utils
+  - libgtk-3-dev
+  - libkeybinder-3.0-dev
+  - git
+  - xdotool
+write_files:
+  - path: /etc/gdm3/custom.conf
+    defer: true
+    content: |
+      [daemon]
+      WaylandEnable=false
+      AutomaticLoginEnable=true
+      AutomaticLogin=peek
+runcmd:
+  - systemctl set-default graphical.target
+  - mkdir -p /home/peek/.config
+  - echo yes > /home/peek/.config/gnome-initial-setup-done
+  - chown -R peek:peek /home/peek/.config
+power_state:
+  mode: reboot
+  condition: true

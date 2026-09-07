@@ -31,6 +31,15 @@ it on a throwaway display:
 
 CI runs exactly this. It needs `xvfb`, `openbox`, `xdotool` and `ffmpeg`.
 
+### GNOME VM tests
+
+The GNOME Shell backend and desktop-specific behaviour are checked in
+libvirt VMs with a real GNOME Xorg session; see `tests/vm/README.md`.
+Typical run:
+
+    tests/vm/vm.sh gnome revert && tests/vm/vm.sh gnome sync
+    tests/vm/vm.sh gnome smoke gnome-shell
+
 ### Running Peek with debug output
 
     G_MESSAGES_DEBUG=all ./peek

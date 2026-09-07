@@ -6,6 +6,7 @@
 # really recorded, so do not run it on a display you are using.
 #
 #   tests/ui-smoke.sh [path/to/peek]
+#   PEEK_BACKEND=gnome-shell tests/ui-smoke.sh   # in a GNOME session (tests/vm)
 #
 # Headless (what CI does):
 #   xvfb-run -a -s "-screen 0 1280x800x24" dbus-run-session -- \
@@ -13,6 +14,7 @@
 set -euo pipefail
 
 PEEK=$(realpath "${1:-builddir/src/peek}")
+BACKEND=${PEEK_BACKEND:-ffmpeg}
 SRC=$(realpath "$(dirname "$0")/..")
 WORK=$(mktemp -d)
 LOG=$WORK/peek.log
@@ -72,7 +74,7 @@ save_with_default_name() { # SAVES: how many "File saved" lines to expect afterw
   sleep 1
 }
 
-G_MESSAGES_DEBUG=all stdbuf -oL -eL "$PEEK" -b ffmpeg >"$LOG" 2>&1 &
+G_MESSAGES_DEBUG=all stdbuf -oL -eL "$PEEK" -b "$BACKEND" >"$LOG" 2>&1 &
 PEEK_PID=$!
 WID=$(xdotool search --sync --classname peek | tail -1)
 sleep 1
@@ -99,6 +101,11 @@ start_take 3; sleep 1.5; toggle
 save_with_default_name 2
 expect "saved files" "$(outputs)" 2
 expect "cache leftovers" "$(cache)" 0
+
+if [ "$BACKEND" != ffmpeg ]; then
+  echo "PASS ($BACKEND: recorder-death scenario skipped)"
+  exit 0
+fi
 
 echo "3. recorder dies mid-recording, then record again"
 start_take 4; sleep 1
