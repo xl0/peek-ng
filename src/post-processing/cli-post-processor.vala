@@ -16,7 +16,7 @@ namespace Peek.PostProcessing {
     // private Pid? pid = null;
     private Subprocess subprocess;
 
-    public abstract async Array<File>? process_async (Array<File> files) throws RecordingError;
+    public abstract async Array<File> process_async (Array<File> files) throws RecordingError;
 
     public void cancel () {
       if (subprocess != null) {

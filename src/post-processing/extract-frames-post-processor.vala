@@ -13,7 +13,7 @@ namespace Peek.PostProcessing {
   * Uses ffmpeg to generate PNG images for each frame.
   */
   public class ExtractFramesPostProcessor : CliPostProcessor {
-    public override async Array<File>? process_async (Array<File> files) throws RecordingError {
+    public override async Array<File> process_async (Array<File> files) throws RecordingError {
       var input_file = files.index (0);
       string[] args = {
         "ffmpeg", "-y",
