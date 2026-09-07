@@ -60,9 +60,11 @@ case $cmd in
   sync)
     bundle=$(mktemp); git -C "$REPO" bundle create -q "$bundle" HEAD
     vscp "$bundle" "peek@$(ip):peek-ng.bundle"; rm -f "$bundle"
-    vssh 'cd ~/peek-ng 2>/dev/null || { git init -q ~/peek-ng && cd ~/peek-ng; };
-      git fetch -q ../peek-ng.bundle HEAD && git checkout -q -f --detach FETCH_HEAD && git log --oneline -1 &&
-      { [ -d builddir ] || meson setup builddir >/dev/null; } && ninja -C builddir 2>&1 | grep -E "error:|FAILED|Linking target src/peek" || true'
+    vssh 'set -e; mkdir -p ~/peek-ng; cd ~/peek-ng; [ -d .git ] || git init -q;
+      git fetch -q ../peek-ng.bundle HEAD; git checkout -q -f --detach FETCH_HEAD; git log --oneline -1;
+      [ -d builddir ] || meson setup builddir >/dev/null;
+      ninja -C builddir >/tmp/ninja.log 2>&1 || { grep -E "error:|FAILED" /tmp/ninja.log; echo "build failed"; exit 1; };
+      echo "built $(stat -c %y builddir/src/peek | cut -c1-19)"'
     ;;
   snapshot)
     virsh snapshot-delete "$DOM" ready >/dev/null 2>&1 || true
