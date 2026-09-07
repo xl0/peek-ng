@@ -1,4 +1,4 @@
-# Version 1.6.0 - unreleased
+# Version 1.6.0 - 2026-09-07
 - peek-ng: Maintained fork of the deprecated phw/peek
 - fix: Rendering no longer hangs forever on long recordings (#339)
 - fix: Restore MP4 recording removed upstream
