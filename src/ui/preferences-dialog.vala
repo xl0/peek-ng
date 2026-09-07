@@ -19,9 +19,9 @@ namespace Peek.Ui {
     public static Gtk.Window present_single_instance (Gtk.Window main_window) {
       if (instance == null) {
         instance = new PreferencesDialog ();
-        instance.delete_event.connect ((event) => {
+        instance.delete_event.connect ((dialog, event) => {
           instance = null;
-          main_window.set_keep_above (true);
+          ((Gtk.Window) dialog).transient_for.set_keep_above (true);
           return false;
         });
       }
