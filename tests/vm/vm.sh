@@ -31,7 +31,20 @@ SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o Connect
 # the session bus and the desktop name exactly like a launched app would.
 SESSION_ENV='export DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus XDG_CURRENT_DESKTOP=ubuntu:GNOME XDG_SESSION_TYPE=x11;'
 
-ip() { virsh domifaddr "$DOM" 2>/dev/null | awk '/ipv4/{print $4}' | cut -d/ -f1 | head -1; }
+ip() {
+  local a mac
+  a=$(virsh domifaddr "$DOM" 2>/dev/null | awk '/ipv4/{print $4}' | cut -d/ -f1 | head -1)
+  # A reverted snapshot keeps an IP whose DHCP lease may have expired on the
+  # host; find it by MAC in the neighbour table, pinging the subnet to fill it.
+  if [ -z "$a" ] && mac=$(virsh domiflist "$DOM" 2>/dev/null | awk '/network/{print $5}') && [ -n "$mac" ]; then
+    a=$(command ip neigh | awk -v m="$mac" '$5 == m && $NF != "FAILED" {print $1; exit}')
+    if [ -z "$a" ]; then
+      for i in $(seq 2 254); do ping -c1 -W1 "192.168.122.$i" >/dev/null 2>&1 & done; wait
+      a=$(command ip neigh | awk -v m="$mac" '$5 == m && $NF != "FAILED" {print $1; exit}')
+    fi
+  fi
+  echo "$a"
+}
 vssh() { ssh "${SSH_OPTS[@]}" "peek@$(ip)" "$SESSION_ENV $*"; }
 vscp() { scp "${SSH_OPTS[@]}" "$@"; }
 wait_ready() {
