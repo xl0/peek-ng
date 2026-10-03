@@ -699,13 +699,13 @@ namespace Peek.Ui {
 
       this.input_shape_combine_region (window_region);
 
-      if (!this.get_screen ().is_composited ()) {
-        if (delay_indicator_timeout == 0 &&
-          size_indicator_timeout == 0) {
-          this.shape_combine_region (window_region);
-        } else {
-          this.shape_combine_region (null);
-        }
+      // Also set the bounding shape when composited: some window managers
+      // (awesome) copy only the bounding shape to their frame window.
+      if (delay_indicator_timeout == 0 &&
+        size_indicator_timeout == 0) {
+        this.shape_combine_region (window_region);
+      } else {
+        this.shape_combine_region (null);
       }
     }
 

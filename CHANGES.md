@@ -1,3 +1,7 @@
+# Version 1.6.1 - unreleased
+- fix: Clicks pass through the recording area on awesome with a compositor
+  such as picom
+
 # Version 1.6.0 - 2026-09-07
 - peek-ng: Maintained fork of the deprecated phw/peek
 - fix: Rendering no longer hangs forever on long recordings (#339)
