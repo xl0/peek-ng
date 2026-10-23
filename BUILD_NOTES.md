@@ -32,6 +32,33 @@ it on a throwaway display:
 It needs `xvfb`, `openbox`, `xdotool` and `ffmpeg`. It is not part of CI:
 window-manager timing under Xvfb made it flaky on GitHub runners.
 
+### Corner-resize regression (awesome / X11)
+
+`tests/resize-smoke.sh` creates its own Xvfb display and session bus, starts
+awesome, and injects 1,000 pointer motions/second into GTK's resize borders.
+It checks live resizing, pauses before/during a drag, and restoration of
+Peek's bounding/input holes afterward. It never drives the host desktop.
+Requires Xvfb, awesome, Python 3, X11/XTest/Shape libraries, and `xwininfo`.
+Picom is optional:
+
+    tests/resize-smoke.sh
+    COMPOSITOR=yes tests/resize-smoke.sh
+    INDICATOR_DELAY=0 tests/resize-smoke.sh
+
+Awesome does not implement `_NET_WM_MOVERESIZE`, so corner drags use GTK's
+X11 emulation rather than awesome's native mod-mouse resize. With GTK
+3.24.41, a hollow bounding shape plus continuous XI2 motion can stall
+layout/painting; a plain GTK window with the same shape reproduces this,
+with or without picom. Peek primes its existing rectangular size overlay
+on resize-border presses, before GTK starts the drag, and keeps it while
+the resize pointer grab and primary button are held. Waiting for the first
+size allocation to clear the hole is too late. Grab polling has a 100 ms
+minimum interval to avoid spinning when the indicator delay is zero.
+
+For diagnosis, `GDK_CORE_DEVICE_EVENTS=1 peek` also avoids the stall by
+selecting GTK's paced core-input fallback, but disables XI2 features for
+that process. The application fix does not require this setting.
+
 ### GNOME VM tests
 
 The GNOME Shell backend and desktop-specific behaviour are checked in

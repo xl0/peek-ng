@@ -231,6 +231,18 @@ namespace Peek.Ui {
       this.headerbar.hide ();
     }
 
+    public override bool button_press_event (Gdk.EventButton event) {
+      if (event.button == 1 && Gtk.get_event_widget (event) == this &&
+        event.window.is_input_only () && resizable && !is_recording) {
+        // Clear the bounding hole before GTK's emulated resize starts. Under
+        // awesome, high-rate XI2 motion can otherwise stall the first repaint.
+        show_size_indicator ();
+        update_input_shape ();
+      }
+
+      return base.button_press_event (event);
+    }
+
     public override bool configure_event (Gdk.EventConfigure event) {
       if (recorder.is_recording) {
         var new_recording_area = get_recording_area ();
@@ -443,7 +455,21 @@ namespace Peek.Ui {
           if (!recorder.is_recording) {
             shortcut_label.opacity = 1.0;
             size_indicator.opacity = 1.0;
-            size_indicator_timeout = Timeout.add (size_indicator_delay, () => {
+            // Bound grab polling even if the configured indicator delay is zero.
+            size_indicator_timeout = Timeout.add (int.max (100, size_indicator_delay), () => {
+              // A paused GTK resize still holds its pointer grab. Restoring the
+              // bounding hole now would stall XI2 resizing when motion resumes.
+              var display = get_display ();
+              var pointer = display.get_default_seat ().get_pointer ();
+              if (pointer != null && display.device_is_grabbed (pointer)) {
+                // GDK can retain a stale grab record after the button release.
+                Gdk.ModifierType modifiers;
+                get_window ().get_device_position (pointer, null, null, out modifiers);
+                if ((modifiers & Gdk.ModifierType.BUTTON1_MASK) != 0) {
+                  return true;
+                }
+              }
+
               size_indicator_timeout = 0;
               size_indicator.opacity = 0.0;
               shortcut_label.opacity = 0.0;

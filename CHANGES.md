@@ -1,4 +1,5 @@
 # Version 1.6.1 - unreleased
+- fix: Corner resizing stays responsive on awesome with high-rate mouse input (#17)
 - fix: Clicks pass through the recording area on awesome with a compositor
   such as picom
 
