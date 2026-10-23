@@ -1,5 +1,5 @@
 Name:           peek
-Version:        1.6.0
+Version:        1.6.1
 Release:        1%{?dist}
 Summary:        Simple screen recorder with an easy to use interface
 
@@ -63,6 +63,11 @@ appstream-util validate-relax --nonet %{buildroot}/%{_datadir}/metainfo/*.appdat
 %{_mandir}/man1/%{name}.1*
 
 %changelog
+* Fri Oct 23 2026 Alexey Zaytsev <alexey.zaytsev@gmail.com> - 1.6.1-1
+- fix: Corner resizing stays responsive on awesome with high-rate mouse input (#17)
+- fix: Clicks pass through the recording area on awesome with a compositor
+  such as picom
+
 * Sun Sep 06 2026 Alexey Zaytsev <alexey.zaytsev@gmail.com> - 1.6.0-1
 - peek-ng fork: rendering hang, MP4, GNOME 42+ timeouts, GIF frame drops,
   gifski size, countdown capture and many smaller fixes. Build with meson.
